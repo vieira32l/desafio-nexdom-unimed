@@ -26,3 +26,9 @@ function calculateCheckDigit(base: string): number {
   const remainder = sum % 11
   return remainder < 2 ? 0 : 11 - remainder
 }
+
+export function formatCPF(cpf: string): string {
+  const digits = cpf.replace(/\D/g, '')
+  if (digits.length !== 11) return cpf
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`
+}

@@ -4,6 +4,8 @@ import { createPessoa, deletePessoa, listPessoas, updatePessoa } from '@/api/pes
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PessoaForm from '@/components/PessoaForm.vue'
 import type { Pessoa, PessoaPayload } from '@/types/pessoa'
+import { formatCPF } from '@/utils/cpf'
+import { formatDate } from '@/utils/date'
 import { extractErrorMessage, extractFieldErrors } from '@/utils/problemDetail'
 
 const pessoas = ref<Pessoa[]>([])
@@ -135,16 +137,6 @@ async function confirmarExclusao() {
   }
 }
 
-function formatarData(data: string | null): string {
-  if (!data) return '—'
-  const [ano, mes, dia] = data.split('-')
-  return `${dia}/${mes}/${ano}`
-}
-
-function formatarCpf(cpf: string): string {
-  if (cpf.length !== 11) return cpf
-  return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9)}`
-}
 
 onMounted(carregarPessoas)
 </script>
@@ -185,8 +177,8 @@ onMounted(carregarPessoas)
           <tbody>
             <tr v-for="pessoa in pessoas" :key="pessoa.id">
               <td>{{ pessoa.nome }}</td>
-              <td>{{ formatarCpf(pessoa.cpf) }}</td>
-              <td>{{ formatarData(pessoa.dataNascimento) }}</td>
+              <td>{{ formatCPF(pessoa.cpf) }}</td>
+              <td>{{ formatDate(pessoa.dataNascimento) }}</td>
               <td>{{ pessoa.email ?? '—' }}</td>
               <td>
                 <div class="acoes-linha">

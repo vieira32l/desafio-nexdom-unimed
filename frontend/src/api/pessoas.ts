@@ -1,5 +1,6 @@
 import apiClient from './client'
-import type { PagedResponse, Pessoa, PessoaPayload } from '@/types/pessoa'
+import type { PagedResponse } from '@/types/pagination'
+import type { Pessoa, PessoaPayload } from '@/types/pessoa'
 
 export interface ListPessoasParams {
   nome?: string
