@@ -2,6 +2,12 @@
 
 API do desafio Nexdom/Unimed: cadastro de Pessoas (global) e Beneficiários (por tenant), com autenticação JWT e isolamento multitenant em duas camadas independentes.
 
+## Modelo de dados
+
+![Diagrama do banco](docs/diagrama-banco.png)
+
+Diagrama entidade-relacionamento das tabelas `tenant`, `usuario`, `pessoa` e `beneficiario` (a tabela `flyway_schema_history` é gerenciada pelo próprio Flyway, não faz parte do domínio da aplicação).
+
 ## Rodando
 
 Veja o `docker-compose.yml` na raiz do monorepo: `docker compose up` sobe banco, migrations (com seed) e API automaticamente. Usuários de seed: `admin.sp`, `admin.rj`, `admin.mg` (senha `123456` para todos).
