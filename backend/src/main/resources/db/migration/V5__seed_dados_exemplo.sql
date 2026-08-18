@@ -10,7 +10,7 @@ INSERT INTO tenant (id, nome, slug) VALUES
 -- Usuários (1 por tenant)
 INSERT INTO usuario (id, login, senha_hash, tenant_id) VALUES
     ('20000000-0000-0000-0000-000000000001', 'admin.sp', '$2a$10$ZzAC6XoU0W/GpL5deLvrReBYGTepWniTrOLyNRaL004ACVm/AwWCu', '10000000-0000-0000-0000-000000000001'),
-    ('20000000-0000-0000-0000-000000000002', 'admin.rio', '$2a$10$KmJS5C76yeo5BcO3q06DLu67oei1QagNwImwUAozhd72rnAPrUIAK', '10000000-0000-0000-0000-000000000002'),
+    ('20000000-0000-0000-0000-000000000002', 'admin.rj', '$2a$10$KmJS5C76yeo5BcO3q06DLu67oei1QagNwImwUAozhd72rnAPrUIAK', '10000000-0000-0000-0000-000000000002'),
     ('20000000-0000-0000-0000-000000000003', 'admin.mg', '$2a$10$sRtITsOeei64xcCoOsuKpem6x0Bp/6A/RxIz9IZXpgEYhCDwBfrvK', '10000000-0000-0000-0000-000000000003');
 
 -- Pessoas (globais, não pertencem a nenhum tenant)

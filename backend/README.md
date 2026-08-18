@@ -4,7 +4,7 @@ API do desafio Nexdom/Unimed: cadastro de Pessoas (global) e Beneficiários (por
 
 ## Rodando
 
-Veja o `docker-compose.yml` na raiz do monorepo: `docker compose up` sobe banco, migrations (com seed) e API automaticamente. Usuários de seed: `admin.sp`, `admin.rio`, `admin.mg` (senha `123456` para todos).
+Veja o `docker-compose.yml` na raiz do monorepo: `docker compose up` sobe banco, migrations (com seed) e API automaticamente. Usuários de seed: `admin.sp`, `admin.rj`, `admin.mg` (senha `123456` para todos).
 
 ## Isolamento multitenant: duas camadas independentes
 

@@ -6,7 +6,7 @@
 #   http://localhost:8081         -> backend (API Spring Boot)
 #   localhost:5432                -> Postgres
 #
-# Usuários de seed pra logar (senha "123456" pra todos): admin.sp, admin.rio, admin.mg.
+# Usuários de seed pra logar (senha "123456" pra todos): admin.sp, admin.rj, admin.mg.
 #
 # Override de portas (se 8080/8081 já estiverem em uso): crie um .env na raiz com
 #   FRONTEND_PORT=9090

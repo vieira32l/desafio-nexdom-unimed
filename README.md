@@ -50,7 +50,7 @@ A troca de tenant neste desafio acontece via login com usuários diferentes. Nã
 | Login | Senha | Tenant |
 |---|---|---|
 | `admin.sp` | `123456` | Unimed São Paulo |
-| `admin.rio` | `123456` | Unimed Rio |
+| `admin.rj` | `123456` | Unimed Rio |
 | `admin.mg` | `123456` | Unimed Minas |
 
 O tenant ativo fica sempre visível no topo da aplicação ("Você está em: ...") depois do login.

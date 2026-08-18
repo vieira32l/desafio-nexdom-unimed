@@ -43,7 +43,7 @@ class BeneficiarioTenantIsolationTest {
     @BeforeEach
     void login() {
         tokenSp = login("admin.sp", "123456");
-        tokenRio = login("admin.rio", "123456");
+        tokenRio = login("admin.rj", "123456");
     }
 
     @Test
