@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { createBeneficiario, deleteBeneficiario, listBeneficiarios, updateBeneficiario } from '@/api/beneficiarios'
 import BeneficiarioForm from '@/components/BeneficiarioForm.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import { useSuccessMessage } from '@/composables/useSuccessMessage'
 import type {
   Beneficiario,
   BeneficiarioCreatePayload,
@@ -11,6 +12,8 @@ import type {
 } from '@/types/beneficiario'
 import { formatDate } from '@/utils/date'
 import { extractErrorMessage, extractFieldErrors } from '@/utils/problemDetail'
+
+const { successMessage, mostrarSucesso } = useSuccessMessage()
 
 const beneficiarios = ref<Beneficiario[]>([])
 const loading = ref(false)
@@ -105,6 +108,7 @@ async function salvarBeneficiario(payload: BeneficiarioCreatePayload | Beneficia
   formSubmitting.value = true
   formError.value = null
   formFieldErrors.value = null
+  const editando = editingBeneficiario.value !== null
   try {
     if (editingBeneficiario.value) {
       await updateBeneficiario(editingBeneficiario.value.id, payload as BeneficiarioUpdatePayload)
@@ -113,6 +117,7 @@ async function salvarBeneficiario(payload: BeneficiarioCreatePayload | Beneficia
     }
     fecharForm()
     await carregarBeneficiarios()
+    mostrarSucesso(editando ? 'Beneficiário atualizado com sucesso.' : 'Beneficiário cadastrado com sucesso.')
   } catch (error) {
     formError.value = extractErrorMessage(error)
     formFieldErrors.value = extractFieldErrors(error)
@@ -142,6 +147,7 @@ async function confirmarExclusao() {
       page.value -= 1
     }
     await carregarBeneficiarios()
+    mostrarSucesso('Beneficiário excluído com sucesso.')
   } catch (error) {
     deleteError.value = extractErrorMessage(error)
   } finally {
@@ -180,6 +186,7 @@ onMounted(carregarBeneficiarios)
       </button>
     </form>
 
+    <p v-if="successMessage" class="banner-sucesso" role="status">{{ successMessage }}</p>
     <p v-if="listError" class="banner-erro" role="alert">{{ listError }}</p>
 
     <p v-if="loading">Carregando...</p>

@@ -3,10 +3,13 @@ import { onMounted, ref } from 'vue'
 import { createPessoa, deletePessoa, listPessoas, updatePessoa } from '@/api/pessoas'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PessoaForm from '@/components/PessoaForm.vue'
+import { useSuccessMessage } from '@/composables/useSuccessMessage'
 import type { Pessoa, PessoaPayload } from '@/types/pessoa'
 import { formatCPF } from '@/utils/cpf'
 import { formatDate } from '@/utils/date'
 import { extractErrorMessage, extractFieldErrors } from '@/utils/problemDetail'
+
+const { successMessage, mostrarSucesso } = useSuccessMessage()
 
 const pessoas = ref<Pessoa[]>([])
 const loading = ref(false)
@@ -93,6 +96,7 @@ async function salvarPessoa(payload: PessoaPayload) {
   formSubmitting.value = true
   formError.value = null
   formFieldErrors.value = null
+  const editando = editingPessoa.value !== null
   try {
     if (editingPessoa.value) {
       await updatePessoa(editingPessoa.value.id, payload)
@@ -101,6 +105,7 @@ async function salvarPessoa(payload: PessoaPayload) {
     }
     fecharForm()
     await carregarPessoas()
+    mostrarSucesso(editando ? 'Pessoa atualizada com sucesso.' : 'Pessoa cadastrada com sucesso.')
   } catch (error) {
     formError.value = extractErrorMessage(error)
     formFieldErrors.value = extractFieldErrors(error)
@@ -130,6 +135,7 @@ async function confirmarExclusao() {
       page.value -= 1
     }
     await carregarPessoas()
+    mostrarSucesso('Pessoa excluída com sucesso.')
   } catch (error) {
     deleteError.value = extractErrorMessage(error)
   } finally {
@@ -154,6 +160,7 @@ onMounted(carregarPessoas)
       <button v-if="nomeBusca" type="button" class="secundario" @click="limparBusca">Limpar</button>
     </form>
 
+    <p v-if="successMessage" class="banner-sucesso" role="status">{{ successMessage }}</p>
     <p v-if="listError" class="banner-erro" role="alert">{{ listError }}</p>
 
     <p v-if="loading">Carregando...</p>

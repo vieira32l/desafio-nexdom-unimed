@@ -93,12 +93,14 @@ async function handleSubmit() {
 .login-card h1 {
   margin: 0;
   font-size: 1.4rem;
+  text-align: center;
 }
 
 .subtitulo {
   margin: 0 0 0.5rem;
   color: #666;
   font-size: 0.9rem;
+  text-align: center;
 }
 
 label {

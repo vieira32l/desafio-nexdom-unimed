@@ -41,6 +41,7 @@ public class BeneficiarioService {
     public BeneficiarioResponse criar(BeneficiarioCreateRequest request, UUID tenantId) {
         Pessoa pessoa = buscarPessoa(request.pessoaId());
         validarMatriculaDisponivel(tenantId, request.matricula(), null);
+        validarVinculoAtivoUnico(request.pessoaId(), tenantId, request.tipo(), request.status(), null);
 
         Beneficiario beneficiario = new Beneficiario(
                 pessoa, tenantId, request.matricula(), request.tipo(), request.status(), request.dataAdesao());
@@ -54,6 +55,7 @@ public class BeneficiarioService {
     public BeneficiarioResponse atualizar(UUID id, UUID tenantId, BeneficiarioUpdateRequest request) {
         Beneficiario beneficiario = buscarEntidade(id, tenantId);
         validarMatriculaDisponivel(tenantId, request.matricula(), id);
+        validarVinculoAtivoUnico(beneficiario.getPessoa().getId(), tenantId, request.tipo(), request.status(), id);
 
         beneficiario.setMatricula(request.matricula());
         beneficiario.setTipo(request.tipo());
@@ -84,6 +86,26 @@ public class BeneficiarioService {
                 .filter(existente -> !existente.getId().equals(idAtual))
                 .ifPresent(existente -> {
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Matrícula já cadastrada para este tenant.");
+                });
+    }
+
+    // A mesma pessoa pode ter um TITULAR ativo e um DEPENDENTE ativo ao mesmo tempo no
+    // mesmo tenant — a restrição é só entre registros do mesmo tipo. Um cadastro
+    // INATIVO nunca é bloqueado por essa regra, então só valida quando o resultado da
+    // operação for ATIVO.
+    private void validarVinculoAtivoUnico(UUID pessoaId, UUID tenantId, TipoBeneficiario tipo,
+                                           StatusBeneficiario status, UUID idAtual) {
+        if (status != StatusBeneficiario.ATIVO) {
+            return;
+        }
+
+        beneficiarioRepository
+                .findByPessoaIdAndTenantIdAndTipoAndStatus(pessoaId, tenantId, tipo, StatusBeneficiario.ATIVO)
+                .filter(existente -> !existente.getId().equals(idAtual))
+                .ifPresent(existente -> {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            "Já existe um vínculo ativo como " + tipo + " para esta pessoa neste tenant. "
+                                    + "Inative o vínculo atual antes de criar ou ativar um novo.");
                 });
     }
 }

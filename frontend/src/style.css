@@ -137,6 +137,16 @@ button.perigo {
   margin: 0 0 0.75rem;
 }
 
+.banner-sucesso {
+  background: #e3f5e9;
+  color: #1f6f43;
+  border: 1px solid #bfe5cd;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem;
+}
+
 .acoes {
   display: flex;
   justify-content: flex-end;

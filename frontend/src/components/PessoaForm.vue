@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import type { Pessoa, PessoaPayload } from '@/types/pessoa'
-import { isValidCPF } from '@/utils/cpf'
+import { formatCPF, isValidCPF } from '@/utils/cpf'
 
 const props = defineProps<{
   pessoa: Pessoa | null
@@ -17,7 +17,7 @@ const emit = defineEmits<{
 
 const form = reactive({
   nome: props.pessoa?.nome ?? '',
-  cpf: props.pessoa?.cpf ?? '',
+  cpf: props.pessoa ? formatCPF(props.pessoa.cpf) : '',
   dataNascimento: props.pessoa?.dataNascimento ?? '',
   email: props.pessoa?.email ?? '',
 })

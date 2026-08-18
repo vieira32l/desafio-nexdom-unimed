@@ -16,6 +16,14 @@ public interface BeneficiarioRepository extends JpaRepository<Beneficiario, UUID
 
     Optional<Beneficiario> findByTenantIdAndMatricula(UUID tenantId, String matricula);
 
+    Optional<Beneficiario> findByPessoaIdAndTenantIdAndTipoAndStatus(
+            UUID pessoaId, UUID tenantId, TipoBeneficiario tipo, StatusBeneficiario status);
+
+    // Sem filtro de tenant de propósito: usado por PessoaService para checar vínculos
+    // em QUALQUER tenant antes de excluir uma Pessoa (entidade global). Ver comentário
+    // em PessoaService.deletar().
+    boolean existsByPessoaId(UUID pessoaId);
+
     @Query("""
             SELECT b FROM Beneficiario b JOIN FETCH b.pessoa p
             WHERE b.tenantId = :tenantId

@@ -1,5 +1,6 @@
 package com.nexdom.beneficiarios.pessoa;
 
+import com.nexdom.beneficiarios.beneficiario.BeneficiarioRepository;
 import com.nexdom.beneficiarios.pessoa.dto.PessoaCreateRequest;
 import com.nexdom.beneficiarios.pessoa.dto.PessoaResponse;
 import com.nexdom.beneficiarios.pessoa.dto.PessoaUpdateRequest;
@@ -17,9 +18,11 @@ import java.util.UUID;
 public class PessoaService {
 
     private final PessoaRepository pessoaRepository;
+    private final BeneficiarioRepository beneficiarioRepository;
 
-    public PessoaService(PessoaRepository pessoaRepository) {
+    public PessoaService(PessoaRepository pessoaRepository, BeneficiarioRepository beneficiarioRepository) {
         this.pessoaRepository = pessoaRepository;
+        this.beneficiarioRepository = beneficiarioRepository;
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +62,28 @@ public class PessoaService {
 
     @Transactional
     public void deletar(UUID id) {
-        pessoaRepository.delete(buscarEntidade(id));
+        Pessoa pessoa = buscarEntidade(id);
+
+        // Pessoa é global (não tem tenant_id), então um vínculo em QUALQUER operadora
+        // deve bloquear a exclusão — não só um vínculo no tenant do usuário logado.
+        // Por isso essa checagem é feita sem filtro de tenant, de propósito.
+        //
+        // Isso funciona porque PessoaService nunca é interceptado pelo
+        // BeneficiarioTenantAspect (o pointcut dele só cobre métodos de
+        // BeneficiarioService) — então, aqui, a sessão do Postgres continua com o
+        // usuário de conexão da aplicação (superuser), sem "SET LOCAL ROLE app_runtime"
+        // nem app.current_tenant setados. Superuser sempre ignora RLS, então esta query
+        // vê beneficiarios de todos os tenants mesmo com a policy de V6 habilitada.
+        // Se um dia isso for refatorado para passar por um contexto com tenant setado,
+        // NÃO adicione um filtro de tenant aqui — isso quebraria esta checagem, que
+        // precisa ser global por design.
+        if (beneficiarioRepository.existsByPessoaId(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Não é possível excluir esta pessoa porque ela possui vínculo de beneficiário em uma ou mais "
+                            + "operadoras. Remova os vínculos antes de excluir.");
+        }
+
+        pessoaRepository.delete(pessoa);
     }
 
     private Pessoa buscarEntidade(UUID id) {
