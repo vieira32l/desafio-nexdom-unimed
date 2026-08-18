@@ -1,3 +1,19 @@
+# Stack completa: "docker compose up" (com ou sem --build) sobe banco, API e frontend,
+# aplica as migrations Flyway (com seed) automaticamente e já deixa tudo pronto pra usar.
+#
+# Portas no host:
+#   http://localhost:8080         -> frontend (Nginx servindo o build do Vue)
+#   http://localhost:8081         -> backend (API Spring Boot)
+#   localhost:5432                -> Postgres
+#
+# Usuários de seed pra logar (senha "123456" pra todos): admin.sp, admin.rio, admin.mg.
+#
+# Override de portas (se 8080/8081 já estiverem em uso): crie um .env na raiz com
+#   FRONTEND_PORT=9090
+#   BACKEND_PORT=9091
+# O CORS do backend (env var, lido em runtime) se ajusta sozinho. Já o VITE_API_BASE_URL
+# do frontend é embutido no bundle em BUILD TIME — depois de mudar as portas, rode
+# "docker compose up --build" (não só "up") pra ele ser gerado de novo com a porta certa.
 services:
   db:
     image: postgres:18-alpine
@@ -16,6 +32,49 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: desafio-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Conexão com o Postgres: nada hardcoded, tudo vem do ambiente do compose.
+      # DB_HOST="db" (nome do serviço, resolvido pela rede interna do compose) —
+      # diferente do default "localhost" usado quando a API roda fora de container.
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-desafio_db}
+      DB_USER: ${POSTGRES_USER:-app_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-app_password}
+      # Origem real de onde o navegador vai carregar o frontend (Nginx no host, porta FRONTEND_PORT).
+      CORS_ALLOWED_ORIGINS: http://localhost:${FRONTEND_PORT:-8080}
+    ports:
+      - "${BACKEND_PORT:-8081}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Vite embute isso no bundle em build time: precisa ser uma URL alcançável
+        # pelo NAVEGADOR do usuário (host), não o hostname interno "backend" do compose.
+        VITE_API_BASE_URL: http://localhost:${BACKEND_PORT:-8081}
+    container_name: desafio-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
 
 volumes:
   db_data:
